@@ -1,0 +1,9 @@
+build/
+dist/
+.idea
+.env
+*.pyc
+MANIFEST
+TODO
+__pycache__
+
