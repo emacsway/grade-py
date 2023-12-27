@@ -1,19 +1,31 @@
 import typing
-from functools import wraps
-from collections.abc import Callable, Awaitable
-from psycopg import AsyncConnection, AsyncTransaction
+from contextlib import asynccontextmanager
+from psycopg import AsyncConnection
+from psycopg_pool import AsyncConnectionPool
 
-from ....infrastructure.seedwork.session.interfaces import ISession, IIdentityMap
+from ....application.seedwork.session import ISessionPool
+from ..session.interfaces import ISession, IIdentityMap
 from .identity_map import IdentityMap
 
-__all__ = ('PgSession', )
+__all__ = ('PgSession', 'PgSessionPool', )
+
+
+class PgSessionPool(ISessionPool):
+    _pool: AsyncConnectionPool
+
+    def __init__(self, pool: AsyncConnectionPool):
+        self._pool = pool
+
+    @asynccontextmanager
+    async def session(self) -> typing.AsyncIterator[ISession]:
+        async with self._pool.connection() as conn:
+            yield PgSession(conn)
 
 
 class PgSession(ISession):
     _connection: AsyncConnection[typing.Any]
     _parent: typing.Optional['PgSession']
     _identity_map: IIdentityMap
-    _transaction: typing.Optional[AsyncTransaction]
 
     def __init__(self, connection, parent: typing.Optional['PgSession'] = None):
         self._connection = connection
@@ -28,28 +40,20 @@ class PgSession(ISession):
     def identity_map(self) -> IIdentityMap:
         return self._identity_map
 
-    async def __call__(self, func: Callable[['ISession'], Awaitable[typing.Any]]) -> typing.Any:
-        @wraps(func)
-        async def _decorated(*a, **kw):
-            with self:
-                return await func(*a, **kw)
-
-        return _decorated
-
-    async def __aenter__(self) -> 'ISession':
-        ts = await self.connection.transaction()
-        self._transaction = await ts.__aenter__()
-        return PgTransactionSession(self._transaction.connection, self)
-
-    async def __aexit__(self, exc_type, exc_value, traceback) -> bool:
-        return await self._transaction.__aexit__(exc_type, exc_value, traceback)
+    @asynccontextmanager
+    async def atomic(self) -> typing.AsyncIterator[ISession]:
+        async with self.connection.transaction() as transaction:
+            yield PgTransactionSession(transaction.connection, self)
 
 
 # TODO: Add savepoint support
 class PgTransactionSession(PgSession):
 
-    async def __aenter__(self) -> 'ISession':
-        return type(self)(self.connection, self)
+    @asynccontextmanager
+    def atomic(self) -> typing.AsyncIterator[ISession]:
+        yield PgTransactionSession(self._connection, self)
 
-    async def __aexit__(self, exc_type, exc_value, traceback) -> bool:
-        return True
+    @asynccontextmanager
+    async def atomic2(self) -> typing.AsyncIterator[ISession]:
+        async with self.connection.transaction() as transaction:
+            yield PgTransactionSession(transaction.connection, self)

@@ -20,11 +20,17 @@ class TimeRangeFaker:
         self.lower = kwargs.get('lower') or self._faker.date_time()
         self.upper = kwargs.get('upper') or self._faker.date_time_between_dates(
             datetime_start=self.lower,
-            datetime_end=getattr(self, 'upper', self.delta)
+            datetime_end=self.lower + self.delta
         )
 
-    def next(self):
+    async def next(self):
         self._fake()
 
-    def create(self):
+    async def create(self):
         return TimeRange(self.lower, self.upper)
+
+    def to_dict(self):
+        return dict(
+            lower=self.lower,
+            upper=self.upper,
+        )

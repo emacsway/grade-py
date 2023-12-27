@@ -1,5 +1,5 @@
 from unittest import mock, IsolatedAsyncioTestCase
-from .....domain.seedwork.disposable import Disposable
+from ...disposable import Disposable
 
 
 # noinspection PyMethodMayBeStatic

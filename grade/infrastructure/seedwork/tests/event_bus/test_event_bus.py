@@ -4,7 +4,7 @@ import threading
 from contextlib import contextmanager
 from unittest import mock, IsolatedAsyncioTestCase
 
-from .....infrastructure.seedwork.event_bus import InMemoryEventBus
+from ...event_bus import InMemoryEventBus
 
 
 class InMemoryEventBusTestCase(IsolatedAsyncioTestCase):

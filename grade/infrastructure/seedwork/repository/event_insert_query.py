@@ -18,6 +18,7 @@ class IEventInsertQuery(IPersistentDomainEventExporterSetter, metaclass=ABCMeta)
 
 
 class EventInsertQuery(IEventInsertQuery, metaclass=ABCMeta):
+    # TODO: add occurred_at column to table for partitioning reason? created_at with default = NOW()
     _sql = """
         INSERT INTO event_log
         (tenant_id, stream_type, stream_id, stream_position, event_type, event_version, payload, metadata)
@@ -58,11 +59,13 @@ class EventInsertQuery(IEventInsertQuery, metaclass=ABCMeta):
     def event_meta(self, meta: EventMeta):
         exporter = EventMetaExporter()
         meta.export(exporter)
-        self._params[7] = json.dumps(exporter.data, cls=JSONEncoder)
+        self._params[7] = self._encode(exporter.data)
 
     async def evaluate(self, session: ISession):
-        self._params[6] = json.dumps(self.data, cls=JSONEncoder)
+        self._params[6] = self._encode(self.data)
         async with session.connection.cursor() as acursor:
             await acursor.execute(self._sql, self._params)
 
-
+    @staticmethod
+    def _encode(obj):
+        return json.dumps(obj, cls=JSONEncoder)

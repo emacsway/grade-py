@@ -4,13 +4,17 @@ from .point import Point
 from ..faker import Faker
 
 
-__all__ = ('PointFaker', )
+__all__ = ('GeolocationCoordinatesFaker', )
 
 
-class PointFaker:
-    longitude: Decimal
-    latitude: Decimal
+class GeolocationCoordinatesFaker:
+    longitude: typing.Optional[Decimal]
+    latitude: typing.Optional[Decimal]
     altitude: typing.Optional[Decimal] = None
+    accuracy: typing.Optional[Decimal] = None
+    altitude_accuracy: typing.Optional[Decimal] = None
+    heading: typing.Optional[Decimal] = None
+    speed: typing.Optional[Decimal] = None
 
     def __init__(self, **kwargs):
         self._faker = Faker()
@@ -34,4 +38,8 @@ class PointFaker:
             latitude=self.latitude,
             longitude=self.longitude,
             altitude=self.altitude,
+            accuracy=self.accuracy,
+            altitude_accuracy=self.altitude_accuracy,
+            heading=self.heading,
+            speed=self.speed,
         )

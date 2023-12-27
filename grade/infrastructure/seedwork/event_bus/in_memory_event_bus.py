@@ -1,7 +1,7 @@
 import typing
 import collections
 
-from ....application.event_bus.interfaces import IEventHandler, IEventBus
+from ....application.seedwork.event_bus import IEventHandler, IEventBus
 from ....domain.seedwork.disposable import IDisposable, Disposable
 
 __all__ = ('InMemoryEventBus', )

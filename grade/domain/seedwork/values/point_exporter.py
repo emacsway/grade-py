@@ -1,3 +1,4 @@
+import typing
 from decimal import Decimal
 from ..utils import setterproperty
 from .point import IPointExporterSetter
@@ -16,3 +17,7 @@ class PointExporter(IPointExporterSetter):
     @setterproperty
     def latitude(self, value: Decimal):
         self.data['latitude'] = value
+
+    @setterproperty
+    def altitude(self, value: typing.Optional[Decimal]):
+        self.data['altitude'] = value

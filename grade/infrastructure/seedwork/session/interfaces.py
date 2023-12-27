@@ -1,8 +1,7 @@
 import typing
 from abc import ABCMeta, abstractmethod
-from psycopg import AsyncConnection
 
-from ....application.interfaces import ISession as _ISession
+from ....application.seedwork.session.interfaces import ISession as _ISession
 from ....domain.seedwork.aggregate import IHashable
 
 
@@ -36,11 +35,6 @@ class IIdentityMap(metaclass=ABCMeta):
 
 
 class ISession(_ISession, metaclass=ABCMeta):
-
-    @property
-    @abstractmethod
-    def connection(self) -> AsyncConnection[typing.Any]:
-        raise NotImplementedError
 
     @property
     @abstractmethod

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from unittest import mock, IsolatedAsyncioTestCase
 
-from .....infrastructure.seedwork.mediator import Mediator
+from ...mediator import Mediator
 
 
 class IEvent:

@@ -2,7 +2,7 @@ import typing
 from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, Awaitable
 
-from ...domain.seedwork.disposable import IDisposable
+from ....domain.seedwork.disposable import IDisposable
 
 __all__ = ('IUri', 'IPayload', 'IEventHandler', 'IEventBus',)
 

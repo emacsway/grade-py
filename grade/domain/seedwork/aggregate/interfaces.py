@@ -4,7 +4,7 @@ from abc import ABCMeta, abstractmethod
 from ..specification import IEqualOperand
 
 __all__ = ('IVersionedAggregate', 'IDomainEventAdder', 'IDomainEventAccessor', 'IEventiveEntity',
-           'IEventSourcedAggregate', 'IHashable',)
+           'IDomainEventLoader', 'IEventSourcedAggregate', 'IHashable',)
 
 
 class IVersionedAggregate(metaclass=ABCMeta):
@@ -19,7 +19,6 @@ class IVersionedAggregate(metaclass=ABCMeta):
     def version(self, value: int):
         raise NotImplementedError
 
-    @property
     @abstractmethod
     def next_version(self) -> int:
         raise NotImplementedError
@@ -55,15 +54,15 @@ class IEventiveEntity(typing.Generic[IDE], IDomainEventAdder[IDE], IDomainEventA
 IPDE = typing.TypeVar('IPDE', covariant=True)
 
 
-class IEventSourcedAggregate(typing.Generic[IPDE], IEventiveEntity[IPDE], IVersionedAggregate, metaclass=ABCMeta):
+class IDomainEventLoader(typing.Generic[IPDE], metaclass=ABCMeta):
 
     @abstractmethod
-    def _add_handler(self, e: typing.Type[IPDE], handler: typing.Callable[[IPDE], None]):
+    def _load_from(self, past_events: typing.Iterable[IPDE]):
         raise NotImplementedError
 
-    @abstractmethod
-    def load_from(self, past_events: typing.Iterable[IPDE]):
-        raise NotImplementedError
+
+class IEventSourcedAggregate(typing.Generic[IPDE], IDomainEventLoader[IDomainEventLoader],
+                             IEventiveEntity[IPDE], IVersionedAggregate, metaclass=ABCMeta):
 
     @abstractmethod
     def _update(self, e: IPDE):

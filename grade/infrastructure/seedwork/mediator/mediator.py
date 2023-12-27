@@ -1,6 +1,6 @@
 import typing
 import collections
-from ....application.mediator.interfaces import (
+from ....application.seedwork.mediator import (
     IMediator, ICommandHandler, IEventHandler
 )
 from ....domain.seedwork.disposable import IDisposable, Disposable

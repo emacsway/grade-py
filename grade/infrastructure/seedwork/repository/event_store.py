@@ -4,11 +4,9 @@ import typing
 from abc import ABCMeta, abstractmethod
 from psycopg.errors import UniqueViolation
 
-from ....domain.seedwork.aggregate import (
-    IDomainEventAccessor, EventMeta, PersistentDomainEvent, ConcurrentUpdate
-)
-from ...seedwork.session import ISession
-from ....application.mediator import IMediator
+from ....domain.seedwork.aggregate import IDomainEventAccessor, EventMeta, PersistentDomainEvent, ConcurrentUpdate
+from ..session import ISession
+from ....application.seedwork.mediator import IMediator
 from .event_insert_query import EventInsertQuery
 
 ___all__ = ('EventStore', )
@@ -25,7 +23,7 @@ class EventStore(typing.Generic[IPDE], metaclass=ABCMeta):
     def __init__(self, session: ISession):
         self._session = session
 
-    async def save(self, agg: IDomainEventAccessor[IPDE], event_meta: EventMeta):
+    async def _save(self, agg: IDomainEventAccessor[IPDE], event_meta: EventMeta):
         events = []
         for event in agg.pending_domain_events:
             event = dataclasses.replace(event, event_meta=event_meta)
@@ -34,7 +32,7 @@ class EventStore(typing.Generic[IPDE], metaclass=ABCMeta):
             try:
                 await query.evaluate(self._session)
             except UniqueViolation as e:
-                raise ConcurrentUpdate from e
+                raise ConcurrentUpdate(query) from e
             events.append(event)
 
         for event in events:

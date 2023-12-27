@@ -2,14 +2,14 @@ import typing
 from abc import ABCMeta, abstractmethod
 from collections.abc import Callable, Awaitable
 
-from ...domain.seedwork.disposable import IDisposable
+from ....domain.seedwork.disposable import IDisposable
 
 __all__ = ('IMediator', 'ICommandHandler', 'IEventHandler', )
 
 
 ISession = typing.TypeVar('ISession', covariant=True)
 ICommand = typing.TypeVar('ICommand', covariant=True)
-ICommandHandler = Callable[[ICommand], Awaitable[bool]]
+ICommandHandler = Callable[[ICommand], Awaitable[typing.Any]]
 
 
 IEvent = typing.TypeVar('IEvent', covariant=True)

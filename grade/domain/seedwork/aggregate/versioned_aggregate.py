@@ -1,7 +1,11 @@
-from abc import ABCMeta
+import typing
+from abc import ABCMeta, abstractmethod
 from .interfaces import IVersionedAggregate
 
-__all__ = ('VersionedAggregate', )
+from ..utils import setterproperty
+
+
+__all__ = ('VersionedAggregate', 'IVersionedAggregateExporterSetter', 'IVersionedAggregateImporterGetter', )
 
 
 class VersionedAggregate(IVersionedAggregate, metaclass=ABCMeta):
@@ -18,7 +22,24 @@ class VersionedAggregate(IVersionedAggregate, metaclass=ABCMeta):
     def version(self, value: int):
         self.__version = value
 
-    @property
     def next_version(self) -> int:
         self.__version += 1
         return self.__version
+
+    def export(self, exporter: 'IVersionedAggregateExporterSetter'):
+        exporter.version = self.version
+
+    def import_(self, exporter: 'IVersionedAggregateImporterGetter'):
+        self.version = exporter.version
+
+
+class IVersionedAggregateExporterSetter(metaclass=ABCMeta):
+
+    @setterproperty
+    @abstractmethod
+    def version(self, value: int):
+        raise NotImplementedError
+
+
+class IVersionedAggregateImporterGetter(typing.Protocol, metaclass=ABCMeta):
+    version: int

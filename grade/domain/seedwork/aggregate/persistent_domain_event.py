@@ -14,6 +14,12 @@ class PersistentDomainEvent(DomainEvent):
     event_version: int = 1
     event_meta: typing.Optional[EventMeta] = None
     aggregate_version: int = 0
+    # occurred_at: datetime.datetime = None  # для партиционирования?
+    # Откуда это значение известно на уровне домена? Пусть останется в Meta.
+
+    @property
+    def event_type(self):
+        return type(self).__name__
 
     def export(self, exporter: 'IPersistentDomainEventExporterSetter'):
         """
@@ -41,7 +47,7 @@ class PersistentDomainEvent(DomainEvent):
         См. также:
         https://dckms.github.io/system-architecture/emacsway/it/ddd/grade/domain/shotgun-surgery.html
         """
-        exporter.event_type = type(self).__name__
+        exporter.event_type = self.event_type
         exporter.event_version = self.event_version
         exporter.event_meta = self.event_meta
         exporter.aggregate_version = self.aggregate_version

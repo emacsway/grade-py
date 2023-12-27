@@ -1,6 +1,6 @@
 import gc
 from unittest import TestCase
-from .....infrastructure.seedwork.session import IdentityMap
+from ...session import IdentityMap
 
 
 class Model:

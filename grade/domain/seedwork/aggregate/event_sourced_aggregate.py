@@ -13,28 +13,25 @@ IPDE = typing.TypeVar('IPDE', covariant=True)
 
 class EventSourcedAggregate(typing.Generic[IPDE], EventiveEntity[IPDE], VersionedAggregate,
                             IEventSourcedAggregate[IPDE], metaclass=ABCMeta):
-    __handlers = dict()
+    class Handlers(dict):
+        def register(self, event_type: typing.Type[IPDE]):
+            def do_register(handler: typing.Callable[['EventSourcedAggregate', IPDE], None]):
+                self[event_type] = handler
+                return handler
+
+            return do_register
+
+    _handlers = Handlers()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def __init_subclass__(cls):
-        cls._register_handlers()
-
-    @classmethod
-    def _register_handlers(cls):
-        pass
-
-    @classmethod
-    def _add_handler(cls, event_type: typing.Type[IPDE], handler: typing.Callable[[IPDE], None]):
-        cls.__handlers[event_type] = handler
-
-    def load_from(self, past_events: typing.Iterable[IPDE]):
+    def _load_from(self, past_events: typing.Iterable[IPDE]):
         for event in past_events:
             self.version = event.aggregate_version
-            self.__handlers[type(event)](self, event)
+            self._handlers[type(event)](self, event)
 
     def _update(self, event: IPDE):
-        event = dataclasses.replace(event, aggregate_version=self.next_version)
-        self.__handlers[type(event)](self, event)
+        event = dataclasses.replace(event, aggregate_version=self.next_version())
+        self._handlers[type(event)](self, event)
         self._add_domain_event(event)
