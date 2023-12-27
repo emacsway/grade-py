@@ -30,6 +30,7 @@ class EventInsertQuery(IEventInsertQuery, metaclass=ABCMeta):
         self.data = dict()
         self._params: typing.List[typing.Any] = [None] * 8
         self._metadata = dict()
+        super().__init__()
 
     @setterproperty
     def tenant_id(self, value: str):
