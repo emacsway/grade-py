@@ -12,7 +12,7 @@ T = typing.TypeVar('T')
 
 class Identity(typing.Generic[T], IAccessible[T], IHashable):
 
-    def __init__(self, value: T):
+    def __init__(self, value: typing.Optional[T]):
         self._value = value
 
     @property
