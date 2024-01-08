@@ -22,6 +22,10 @@ class Identity(typing.Generic[T], IAccessible[T], IHashable):
     def is_transient(self) -> bool:
         return self._value is not None
 
+    @classmethod
+    def transient(cls):
+        return cls(None)
+
     def __hash__(self) -> int:
         return hash(self._value)
 
