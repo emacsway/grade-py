@@ -17,8 +17,8 @@ class TimeRangeFaker:
         self._fake(**kwargs)
 
     def _fake(self, **kwargs):
-        self.lower = kwargs.get('lower') or self._faker.date_time()
-        self.upper = kwargs.get('upper') or self._faker.date_time_between_dates(
+        self.lower = kwargs['lower'] if 'lower' in kwargs else self._faker.date_time()
+        self.upper = kwargs['upper'] if 'upper' in kwargs else self._faker.date_time_between_dates(
             datetime_start=self.lower,
             datetime_end=self.lower + self.delta
         )

@@ -1,6 +1,6 @@
 import typing
 from decimal import Decimal
-from .point import Point
+from .geolocation_coordinates import GeolocationCoordinates
 from ..faker import Faker
 
 
@@ -30,8 +30,8 @@ class GeolocationCoordinatesFaker:
     async def next(self):
         self._fake()
 
-    async def create(self) -> Point:
-        return Point(self.latitude, self.longitude)
+    async def create(self) -> GeolocationCoordinates:
+        return GeolocationCoordinates(self.latitude, self.longitude)
 
     def to_dict(self):
         return dict(
