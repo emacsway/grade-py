@@ -20,7 +20,7 @@ class Identity(typing.Generic[T], IAccessible[T], IHashable):
         return self._value
 
     def is_transient(self) -> bool:
-        return self._value is not None
+        return self._value is None
 
     @classmethod
     def transient(cls):
