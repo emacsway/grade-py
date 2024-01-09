@@ -4,7 +4,9 @@ import json
 from abc import ABCMeta, abstractmethod
 
 from ....domain.seedwork.utils import setterproperty
-from ....domain.seedwork.aggregate import EventMeta, EventMetaExporter, IPersistentDomainEventExporterSetter
+from ....domain.seedwork.aggregate import (
+    EventMeta, EventMetaExporter, PersistentDomainEvent, IPersistentDomainEventExporterSetter
+)
 from ...seedwork.session import ISession
 from .json import JSONEncoder
 
@@ -13,7 +15,14 @@ __all__ = ('EventInsertQuery', 'IEventInsertQuery')
 
 @abstractmethod
 class IEventInsertQuery(IPersistentDomainEventExporterSetter, metaclass=ABCMeta):
+
+    @abstractmethod
     async def evaluate(self, session: ISession) -> None:
+        raise NotImplementedError
+
+    @classmethod
+    @abstractmethod
+    def make(cls, event: PersistentDomainEvent) -> 'IEventInsertQuery':
         raise NotImplementedError
 
 

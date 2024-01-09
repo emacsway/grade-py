@@ -7,7 +7,7 @@ from psycopg.errors import UniqueViolation
 from ....domain.seedwork.aggregate import IDomainEventAccessor, EventMeta, PersistentDomainEvent, ConcurrentUpdate
 from ..session import ISession
 from ....application.seedwork.mediator import IMediator
-from .event_insert_query import EventInsertQuery
+from .event_insert_query import IEventInsertQuery
 
 ___all__ = ('EventStore', )
 
@@ -16,6 +16,17 @@ IPDE = typing.TypeVar('IPDE', bound=PersistentDomainEvent, covariant=True)
 
 
 class EventStore(typing.Generic[IPDE], metaclass=ABCMeta):
+
+    class Queries(dict):
+        def register(self, event_type: typing.Type[PersistentDomainEvent], event_version: int):
+            def do_register(query_cls: typing.Type[IEventInsertQuery]):
+                self[(event_type.__name__, event_version)] = query_cls
+                return query_cls
+
+            return do_register
+
+    queries = Queries()
+
     _session: ISession
     _stream_type: str
     mediator: IMediator
@@ -40,6 +51,5 @@ class EventStore(typing.Generic[IPDE], metaclass=ABCMeta):
 
         del agg.pending_domain_events
 
-    @abstractmethod
-    def _do_make_event_query(self, event: IPDE) -> EventInsertQuery:
-        raise NotImplementedError
+    def _do_make_event_query(self, event: IPDE) -> IEventInsertQuery:
+        return self.queries[(event.event_type, event.event_version)].make(event)
