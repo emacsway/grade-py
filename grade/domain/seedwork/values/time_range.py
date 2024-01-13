@@ -31,6 +31,14 @@ class TimeRange(TimestamptzRange):
                 )
         super().__init__(lower, upper)
 
+    @classmethod
+    def empty(cls):
+        return cls()
+
+    @property
+    def is_empty(self):
+        return self == self.empty()
+
     def export(self, exporter: 'ITimeRangeExporterSetter'):
         exporter.lower = self.lower
         exporter.upper = self.upper

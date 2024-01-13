@@ -29,9 +29,28 @@ class PointFaker:
     async def create(self) -> Point:
         return Point(self.latitude, self.longitude)
 
+    @classmethod
+    def empty(cls):
+        return EmptyPointFaker()
+
     def to_dict(self):
         return dict(
             latitude=self.latitude,
             longitude=self.longitude,
             altitude=self.altitude,
         )
+
+
+class EmptyPointFaker(PointFaker):
+    longitude = None
+    latitude = None
+    altitude = None
+
+    def __init__(self, **kwargs):
+        pass
+
+    async def next(self):
+        pass
+
+    async def create(self) -> Point:
+        return Point.empty()

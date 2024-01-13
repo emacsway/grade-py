@@ -29,6 +29,10 @@ class TimeRangeFaker:
     async def create(self):
         return TimeRange(self.lower, self.upper)
 
+    @classmethod
+    def empty(cls):
+        return cls(lower=None, upper=None)
+
     def to_dict(self):
         return dict(
             lower=self.lower,
