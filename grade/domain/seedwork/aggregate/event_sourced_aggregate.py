@@ -33,5 +33,5 @@ class EventSourcedAggregate(typing.Generic[IPDE], EventiveEntity[IPDE], Versione
 
     def _update(self, event: IPDE):
         event = dataclasses.replace(event, aggregate_version=self.next_version())
-        self._handlers[type(event)](self, event)
         self._add_domain_event(event)
+        self._handlers[type(event)](self, event)

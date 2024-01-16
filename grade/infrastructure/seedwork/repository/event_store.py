@@ -1,5 +1,6 @@
 import dataclasses
 import typing
+import uuid
 
 from abc import ABCMeta, abstractmethod
 from psycopg.errors import UniqueViolation
@@ -36,7 +37,14 @@ class EventStore(typing.Generic[IPDE], metaclass=ABCMeta):
 
     async def _save(self, agg: IDomainEventAccessor[IPDE], event_meta: EventMeta):
         events = []
-        for event in agg.pending_domain_events:
+        pending_events = agg.pending_domain_events
+        del agg.pending_domain_events
+
+        causation_id = None
+        for event in pending_events:
+            event_id = uuid.uuid4()
+            event_meta = dataclasses.replace(event_meta, event_id=event_id, causation_id=causation_id)
+            causation_id = event_id
             event = dataclasses.replace(event, event_meta=event_meta)
             query = self._do_make_event_query(event)
             query.stream_type = self._stream_type
@@ -48,8 +56,6 @@ class EventStore(typing.Generic[IPDE], metaclass=ABCMeta):
 
         for event in events:
             await self.mediator.publish(event, self._session)
-
-        del agg.pending_domain_events
 
     def _do_make_event_query(self, event: IPDE) -> IEventInsertQuery:
         return self.queries[(event.event_type, event.event_version)].make(event)

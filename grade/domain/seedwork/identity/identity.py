@@ -33,5 +33,11 @@ class Identity(typing.Generic[T], IAccessible[T], IHashable):
         assert isinstance(other, Identity)
         return self._value == other._value
 
+    def __str__(self):
+        return str(self._value)
+
+    def __repr__(self):
+        return "%s(%r)" % (type(self).__name__, self._value)
+
     def export(self, setter: typing.Callable[[T], None]):
         setter(self._value)

@@ -19,10 +19,10 @@ class TimeRange(TimestamptzRange):
         upper: typing.Optional[datetime.datetime] = None,
     ):
         if lower and not isinstance(lower, datetime.datetime):
-            raise ValueError("Type of IntIdentity value should be str, not %r", (lower, ))
+            raise ValueError("Type of Timeslot.lower should be datetime.datetime, not %r", (lower, ))
 
         if upper and not isinstance(upper, datetime.datetime):
-            raise ValueError("Type of IntIdentity value should be str, not %r", (upper, ))
+            raise ValueError("Type of Timeslot.upper should be datetime.datetime, not %r", (upper, ))
 
         if lower and upper:
             if lower > upper:
@@ -30,14 +30,6 @@ class TimeRange(TimestamptzRange):
                     "Range lower %s bound must be less than or equal to range upper %s bound", (lower, upper)
                 )
         super().__init__(lower, upper)
-
-    @classmethod
-    def empty(cls):
-        return cls()
-
-    @property
-    def is_empty(self):
-        return self == self.empty()
 
     def export(self, exporter: 'ITimeRangeExporterSetter'):
         exporter.lower = self.lower
